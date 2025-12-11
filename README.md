@@ -252,6 +252,8 @@ CIS7000_Final_Project/
 ├── train.py
 ├── train_classifier.py
 ├── evaluate.py
+├── soundstorm.ipynb
+├── libritts.ipynb
 ├── results/
 │   ├── training_curves.png
 │   ├── evaluation_results.json
