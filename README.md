@@ -20,17 +20,6 @@ This project investigates adapting SoundStorm, a parallel audio generation model
 
 ---
 
-## Motivation
-
-SoundStorm achieves 100x speedup over autoregressive models on speech. Environmental sounds present different challenges:
-
-- Broader spectral range (20 Hz - 20 kHz vs. 300-3500 Hz for speech)
-- Diverse acoustic phenomena: harmonic, impulsive, stochastic, mechanical
-- No linguistic constraints
-- Rich temporal dynamics from sustained drones to millisecond transients
-
----
-
 ## Architecture
 
 ### Components
