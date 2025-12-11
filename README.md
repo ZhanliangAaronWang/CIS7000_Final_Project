@@ -1,105 +1,100 @@
 # Adapting SoundStorm for Environmental Sound Generation
 
 **CIS 7000: Advanced Topics in Machine Learning - Final Project**  
-*University of Pennsylvania, Fall 2024*
+University of Pennsylvania, Fall 2024
 
-**Team Members:** Aaron Wang, Tripti Tripathi, Kathryn Chen
-
-[![Report](https://img.shields.io/badge/Report-PDF-blue)](link-to-report)
-[![Python](https://img.shields.io/badge/Python-3.8+-green)](https://www.python.org/)
-[![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-red)](https://pytorch.org/)
+**Team:** Aaron Wang, Tripti Tripathi, Kathryn Chen
 
 ---
 
 ## Overview
 
-This project investigates the adaptation of **SoundStorm**, a state-of-the-art parallel audio generation model originally designed for speech synthesis, to **environmental sound generation**. We conduct comprehensive experiments on ESC-50 to evaluate both generative and discriminative capabilities of the fine-tuned model.
+This project investigates adapting SoundStorm, a parallel audio generation model originally designed for speech, to environmental sound generation. We evaluate both generative and discriminative capabilities on ESC-50.
 
-### Key Findings
+### Key Results
 
-- **Parallel masked refinement successfully transfers** to non-speech domains, generating temporally coherent audio
-- **Systematic failure modes identified**: 67% reduction in zero-crossing rate (high-frequency attenuation), 55% increase in SNR (temporal over-smoothing), 9.5% lower spectral entropy (reduced diversity)
-- **Classification performance**: 79.6% accuracy on ESC-50 (vs. 88.5% for task-specific AST baseline)
-- **Rigorous evaluation framework**: 8 acoustic metrics, statistical testing, visual analysis
+- Parallel masked refinement successfully transfers to environmental sounds
+- Generated audio shows systematic issues: 67% reduction in zero-crossing rate, 55% increase in SNR (over-smoothing), 55% reduction in spectral centroid
+- Classification accuracy: 79.6% on ESC-50 (vs. 88.5% for AST baseline)
+- Comprehensive evaluation with 8 acoustic metrics and statistical testing
 
 ---
 
 ## Motivation
 
-While SoundStorm achieves impressive results on speech synthesis with **100× speedup** over autoregressive models, its generalizability to environmental sounds remains unexplored. Environmental sounds present unique challenges:
+SoundStorm achieves 100x speedup over autoregressive models on speech. Environmental sounds present different challenges:
 
-- **Broader spectral range**: 20 Hz - 20 kHz (vs. speech: 300-3500 Hz)
-- **Diverse acoustic phenomena**: Harmonic, impulsive, stochastic, mechanical
-- **No linguistic constraints**: Much wider range of valid continuations
-- **Rich temporal dynamics**: From sustained drones to millisecond transients
+- Broader spectral range (20 Hz - 20 kHz vs. 300-3500 Hz for speech)
+- Diverse acoustic phenomena: harmonic, impulsive, stochastic, mechanical
+- No linguistic constraints
+- Rich temporal dynamics from sustained drones to millisecond transients
 
 ---
 
 ## Architecture
 
-### SoundStorm Components
+### Components
 
 1. **Neural Audio Codec** (Encodec 24 kHz)
-   - 8 residual quantizers (RVQ)
+   - 8 residual quantizers
    - 1024 codebook size per quantizer
-   - Frozen encoder/decoder (pretrained weights)
+   - Frozen pretrained weights
 
-2. **Bidirectional Conformer Encoder**
+2. **Bidirectional Conformer**
    - 2 layers, 512 hidden dimensions
    - 8 attention heads, kernel size 31
-   - ~23.5M trainable parameters
+   - 23.5M trainable parameters
 
 3. **Parallel Masked Decoder**
    - MaskGIT-style iterative refinement
-   - Cosine unmasking schedule: γ(r) = cos(πr/2)
+   - Cosine unmasking schedule
    - 12 decoding iterations
-
-<p align="center">
-  <img src="images/architecture.png" width="70%">
-  <br>
-  <em>SoundStorm Architecture Overview</em>
-</p>
 
 ---
 
 ## Datasets
 
 ### ESC-50
-- **2,000** five-second recordings
-- **50** environmental sound classes
-- **5** high-level categories (animals, natural, human, domestic, urban)
-- **5-fold** cross-validation (we use Fold 1: 1,600 train / 400 val)
+- 2,000 five-second recordings
+- 50 environmental sound classes
+- 5 high-level categories
+- 5-fold cross-validation (Fold 1: 1,600 train / 400 val)
 
 ### UrbanSound8K
-- **8,732** recordings of urban sounds
-- **10** classes with 10-fold cross-validation
-- Used for classification experiments only
+- 8,732 urban sound recordings
+- 10 classes with 10-fold cross-validation
+- Classification experiments only
 
 ---
 
-## Experimental Setup
+## Training
 
-### Training Configuration
+### Configuration
 
 ```python
 # Audio Generation
 batch_size = 8
 epochs = 100
-optimizer = Adam(lr=1e-4, betas=(0.9, 0.999))
-scheduler = OneCycleLR(warmup_ratio=0.3)
-loss = CrossEntropy (on masked RVQ tokens)
+optimizer = Adam(lr=1e-4)
+scheduler = OneCycleLR(max_lr=1e-4, pct_start=0.3)
+num_quantizers = 8
+hidden_dim = 512
+depth = 2
+steps = 12
 
-# Classification
+# Classification  
 batch_size = 32
 epochs = 50
 optimizer = Adam(lr=5e-5)
-scheduler = CosineAnnealingLR
-loss = CrossEntropy
+scheduler = OneCycleLR(max_lr=5e-5, pct_start=0.3)
+num_quantizers = 12
+freeze_encoder = True
+pooling = "mean"
 ```
 
 ### Evaluation Metrics
 
-**Acoustic Metrics (6)**
+**Acoustic Metrics**
 - Signal-to-Noise Ratio (SNR)
 - Zero-Crossing Rate (ZCR)
 - RMS Energy
@@ -107,12 +102,12 @@ loss = CrossEntropy
 - Spectral Centroid
 - Spectral Rolloff
 
-**Similarity Metrics (2)**
+**Similarity Metrics**
 - Spectral Convergence
 - Log Spectral Distance
 
 **Statistical Testing**
-- Kolmogorov-Smirnov tests (p < 0.05)
+- Kolmogorov-Smirnov tests
 
 ---
 
@@ -122,70 +117,51 @@ loss = CrossEntropy
 
 | Model | ESC-50 | UrbanSound8K |
 |-------|--------|--------------|
-| AST (baseline) | **88.5%** | **84.2%** |
+| AST (baseline) | 88.5% | 84.2% |
 | SoundStorm (frozen) | 72.3% | 69.8% |
 | SoundStorm (fine-tuned) | 79.6% | 75.4% |
 
-**Per-Class Analysis:**
-- Strong on temporal structure: clock (92%), dog (87%), keyboard (85%)
-- Weak on spectral complexity: helicopter (64%), chainsaw (68%), engine (71%)
+Strong on temporal structure: clock (92%), dog (87%), keyboard (85%)  
+Weak on spectral complexity: helicopter (64%), chainsaw (68%), engine (71%)
 
 ### Audio Generation Quality
 
 | Metric | Real Audio | Generated | Difference |
 |--------|-----------|-----------|------------|
-| SNR (dB) | 14.97 ± 8.10 | 23.18 ± 3.85 | **+54.89%** |
-| Zero-Crossing Rate | 0.067 ± 0.075 | 0.022 ± 0.008 | **-66.79%** |
-| RMS Energy | 0.105 ± 0.088 | 0.068 ± 0.010 | **-34.92%** |
-| Spectral Entropy | 9.85 ± 0.80 | 8.91 ± 0.39 | **-9.49%** |
-| Spectral Centroid (Hz) | 3090 ± 1392 | 1392 ± 258 | **-54.95%** |
-| Spectral Rolloff (Hz) | 5735 ± 3259 | 3259 ± 729 | **-43.18%** |
+| SNR (dB) | 14.97 ± 8.10 | 23.18 ± 3.85 | +54.89% |
+| Zero-Crossing Rate | 0.067 ± 0.075 | 0.022 ± 0.008 | -66.79% |
+| RMS Energy | 0.105 ± 0.088 | 0.068 ± 0.010 | -34.92% |
+| Spectral Entropy | 9.85 ± 0.80 | 8.91 ± 0.39 | -9.49% |
+| Spectral Centroid (Hz) | 3090 ± 1392 | 1392 ± 258 | -54.95% |
+| Spectral Rolloff (Hz) | 5735 ± 3259 | 3259 ± 729 | -43.18% |
 
-**Statistical Significance:**
-- All metrics except duration show significant differences (p < 0.05)
-- KS statistics > 0.45 for most quality metrics
-
-### Training Dynamics
-
-<p align="center">
-  <img src="results/training_curves.png" width="80%">
-  <br>
-  <em>Training converges smoothly with minimal overfitting (final gap: 0.28)</em>
-</p>
+All metrics show significant differences (p < 0.05) except duration.
 
 ---
 
 ## Key Findings
 
-### Four Primary Failure Modes
+### Failure Modes
 
-#### 1. **High-Frequency Attenuation** 
-- 67% reduction in zero-crossing rate
-- 55% reduction in spectral centroid
-- **Cause**: Encodec optimized for speech (0-5 kHz), LibriLight training bias
+1. **High-Frequency Attenuation** 
+   - 67% reduction in zero-crossing rate
+   - 55% reduction in spectral centroid
+   - Cause: Encodec optimized for speech (0-5 kHz), LibriLight bias
 
-#### 2. **Temporal Over-Smoothing**
-- 55% increase in SNR (overly clean signals)
-- Missing transients and sharp acoustic features
-- **Cause**: Parallel generation averages over multiple continuations
+2. **Temporal Over-Smoothing**
+   - 55% increase in SNR
+   - Missing transients and sharp features
+   - Cause: Parallel generation averages multiple continuations
 
-#### 3. **Reduced Spectral Diversity**
-- 9.5% lower spectral entropy
-- Homogeneous outputs lacking variety
-- **Cause**: Limited training data (32 samples/class), conservative generation strategy
+3. **Reduced Spectral Diversity**
+   - 9.5% lower spectral entropy
+   - Homogeneous outputs
+   - Cause: Limited training data (32 samples/class)
 
-#### 4. **Lack of Temporal Evolution**
-- Stationary spectrograms vs. dynamic real audio
-- Missing long-range dependencies
-- **Cause**: Iterative refinement schedule limitations
-
-### Visual Analysis
-
-<p align="center">
-  <img src="results/waveform_comparison.png" width="100%">
-  <br>
-  <em>Real audio (left) shows sharp transients and full spectrum; Generated (right) is smoother with limited high frequencies</em>
-</p>
+4. **Lack of Temporal Evolution**
+   - Stationary spectrograms
+   - Missing long-range dependencies
+   - Cause: Iterative refinement schedule limitations
 
 ---
 
@@ -195,38 +171,34 @@ loss = CrossEntropy
 ```bash
 Python >= 3.8
 PyTorch >= 2.0
-CUDA >= 11.7 (for GPU training)
+CUDA >= 11.7
 ```
 
 ### Setup
 
 ```bash
-# Clone repository
 git clone https://github.com/ZhanliangAaronWang/CIS7000_Final_Project.git
 cd CIS7000_Final_Project
 
-# Create virtual environment
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate
 
-# Install dependencies
-pip install -r requirements.txt
-
-# Download datasets (ESC-50, UrbanSound8K)
-python scripts/download_datasets.py
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+pip install soundfile encodec soundstorm-pytorch librosa scipy matplotlib seaborn tqdm
 ```
 
-### Required Packages
+### Dependencies
 ```
 torch>=2.0.0
 torchaudio>=2.0.0
+soundfile>=0.12.0
 encodec>=0.1.1
+soundstorm-pytorch>=0.1.0
 librosa>=0.10.0
-numpy>=1.24.0
 scipy>=1.10.0
 matplotlib>=3.7.0
 seaborn>=0.12.0
-scikit-learn>=1.3.0
+tqdm>=4.65.0
 ```
 
 ---
@@ -236,56 +208,56 @@ scikit-learn>=1.3.0
 ### Training
 
 ```bash
-# Fine-tune SoundStorm on ESC-50
+# Fine-tune SoundStorm for audio generation
 python train.py \
-  --dataset esc50 \
+  --data_dir /path/to/datafiles \
   --fold 1 \
   --batch_size 8 \
   --epochs 100 \
-  --lr 1e-4 \
+  --learning_rate 1e-4 \
+  --num_quantizers 8 \
+  --hidden_dim 512 \
+  --depth 2 \
+  --steps 12 \
   --output_dir ./checkpoints
 
-# Train classification head
+# Train classification head (frozen encoder)
 python train_classifier.py \
-  --dataset esc50 \
-  --checkpoint ./checkpoints/best_model.pt \
+  --data_dir /path/to/datafiles \
+  --fold 1 \
+  --freeze_encoder \
   --batch_size 32 \
-  --epochs 50
-```
+  --epochs 50 \
+  --learning_rate 5e-5 \
+  --num_quantizers 12 \
+  --output_dir ./checkpoints
 
-### Generation
-
-```bash
-# Generate environmental sounds
-python generate.py \
-  --checkpoint ./checkpoints/best_model.pt \
-  --num_samples 100 \
-  --duration 5.0 \
-  --output_dir ./generated_audio
-
-# Generate with specific class conditioning (if implemented)
-python generate.py \
-  --checkpoint ./checkpoints/best_model.pt \
-  --class "dog_bark" \
-  --num_samples 10
+# Train classification head (joint training)
+python train_classifier.py \
+  --data_dir /path/to/datafiles \
+  --fold 1 \
+  --batch_size 32 \
+  --epochs 50 \
+  --learning_rate 5e-5 \
+  --num_quantizers 12 \
+  --output_dir ./checkpoints
 ```
 
 ### Evaluation
 
 ```bash
-# Compute acoustic metrics
 python evaluate.py \
-  --real_audio ./data/esc50/audio \
-  --generated_audio ./generated_audio \
-  --metrics all \
+  --real_audio /path/to/real/audio \
+  --generated_audio /path/to/generated/audio \
+  --sample_rate 24000 \
+  --num_samples 100 \
   --output_dir ./results
-
-# Run classification evaluation
-python evaluate_classifier.py \
-  --checkpoint ./checkpoints/classifier.pt \
-  --dataset esc50 \
-  --fold 1
 ```
+
+This generates:
+- evaluation_results.json (quantitative metrics)
+- metric_distributions.png (histogram comparisons)
+- metric_boxplots.png (statistical comparisons)
 
 ---
 
@@ -293,37 +265,119 @@ python evaluate_classifier.py \
 
 ```
 CIS7000_Final_Project/
-│
 ├── data/
-│   ├── esc50/              # ESC-50 dataset
-│   └── urbansound8k/       # UrbanSound8K dataset
-│
-├── models/
-│   ├── soundstorm.py       # SoundStorm implementation
-│   ├── conformer.py        # Conformer architecture
-│   ├── encodec_wrapper.py  # Encodec codec wrapper
-│   └── classifier.py       # Classification head
-│
-├── scripts/
-│   ├── train.py            # Training script
-│   ├── generate.py         # Audio generation
-│   ├── evaluate.py         # Acoustic metrics evaluation
-│   └── download_datasets.py
-│
-├── utils/
-│   ├── audio_metrics.py    # Acoustic metric computation
-│   ├── data_loader.py      # Dataset loading utilities
-│   └── visualization.py    # Plotting functions
-│
+│   └── datafiles/
+│       ├── esc_train_data_1.json
+│       ├── esc_eval_data_1.json
+│       └── ...
+├── train.py
+├── train_classifier.py
+├── evaluate.py
 ├── results/
-│   ├── figures/            # Generated plots
-│   ├── metrics/            # Evaluation results
-│   └── audio_samples/      # Example generations
-│
-├── checkpoints/            # Saved model weights
-├── requirements.txt        # Python dependencies
-├── README.md              # This file
-└── report.pdf             # Full technical report
+│   ├── training_curves.png
+│   ├── evaluation_results.json
+│   ├── metric_distributions.png
+│   └── metric_boxplots.png
+├── checkpoints/
+│   ├── best_model_fold1.pt
+│   └── ...
+├── requirements.txt
+├── README.md
+└── report.pdf
+```
+
+### Data Format
+
+JSON files structure:
+
+```json
+{
+  "data": [
+    {
+      "wav": "/absolute/path/to/audio.wav",
+      "labels": "/m/07xxxxx"
+    }
+  ]
+}
 ```
 
 ---
+
+## Reproducibility
+
+### Hardware
+- GPU: NVIDIA with 16GB+ VRAM (tested on A100)
+- RAM: 32GB+
+- Storage: 50GB+
+
+### Training Time
+- SoundStorm fine-tuning: ~12 hours on A100
+- Classification training: ~2 hours
+- Generation (100 samples): ~1 minute
+
+### Random Seeds
+```python
+torch.manual_seed(42)
+np.random.seed(42)
+random.seed(42)
+```
+
+---
+
+## Future Work
+
+1. Higher-bitrate codecs with more quantizers
+2. Diverse pretraining on speech + environmental + music
+3. Increased model capacity
+4. Longer convolution kernels for temporal patterns
+5. Explicit temporal conditioning
+6. Larger datasets (AudioSet: 2M samples, FSD50K: 50K samples)
+7. Class-conditional generation
+8. Perceptual metrics (Fréchet Audio Distance, MUSHRA)
+
+---
+
+## Citation
+
+```bibtex
+@article{wang2024soundstorm,
+  title={Adapting SoundStorm for Environmental Sound Generation},
+  author={Wang, Aaron and Tripathi, Tripti and Chen, Kathryn},
+  journal={CIS 7000 Final Project Report},
+  institution={University of Pennsylvania},
+  year={2024}
+}
+```
+
+---
+
+## References
+
+### Core Papers
+- SoundStorm: Borsos et al., 2023
+- Conformer: Gulati et al., 2020
+- MaskGIT: Chang et al., 2022
+- Encodec: Défossez et al., 2022
+- AST: Gong et al., 2021
+
+### Datasets
+- ESC-50: Piczak, 2015
+- UrbanSound8K: Salamon et al., 2014
+
+---
+
+## Contact
+
+- Aaron Wang: aaronwang@seas.upenn.edu
+- Tripti Tripathi: triptit@seas.upenn.edu
+- Kathryn Chen: kathrync@seas.upenn.edu
+
+Course: CIS 7000 - Advanced Topics in Machine Learning  
+Institution: University of Pennsylvania  
+Semester: Fall 2024
+
+---
+
+## Acknowledgments
+
+Thanks to CIS 7000 course staff, University of Pennsylvania for computational resources, and the original SoundStorm authors.
