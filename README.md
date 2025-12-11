@@ -1,7 +1,7 @@
 # Adapting SoundStorm for Environmental Sound Generation
 
-**CIS 7000: Advanced Topics in Machine Learning - Final Project**  
-University of Pennsylvania, Fall 2024
+**CIS 7000: Advanced Topics in Generative Models - Final Project**  
+University of Pennsylvania, Fall 2025
 
 **Team:** Kathryn Chen, Zhanliang Wang, Tripti Tripathi,
 
