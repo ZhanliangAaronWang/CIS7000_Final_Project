@@ -11,20 +11,20 @@
 
 ---
 
-## 📋 Overview
+## Overview
 
 This project investigates the adaptation of **SoundStorm**, a state-of-the-art parallel audio generation model originally designed for speech synthesis, to **environmental sound generation**. We conduct comprehensive experiments on ESC-50 to evaluate both generative and discriminative capabilities of the fine-tuned model.
 
 ### Key Findings
 
-- ✅ **Parallel masked refinement successfully transfers** to non-speech domains, generating temporally coherent audio
-- ⚠️ **Systematic failure modes identified**: 67% reduction in zero-crossing rate (high-frequency attenuation), 55% increase in SNR (temporal over-smoothing), 9.5% lower spectral entropy (reduced diversity)
-- 📊 **Classification performance**: 79.6% accuracy on ESC-50 (vs. 88.5% for task-specific AST baseline)
-- 🔬 **Rigorous evaluation framework**: 8 acoustic metrics, statistical testing, visual analysis
+- **Parallel masked refinement successfully transfers** to non-speech domains, generating temporally coherent audio
+- **Systematic failure modes identified**: 67% reduction in zero-crossing rate (high-frequency attenuation), 55% increase in SNR (temporal over-smoothing), 9.5% lower spectral entropy (reduced diversity)
+- **Classification performance**: 79.6% accuracy on ESC-50 (vs. 88.5% for task-specific AST baseline)
+- **Rigorous evaluation framework**: 8 acoustic metrics, statistical testing, visual analysis
 
 ---
 
-## 🎯 Motivation
+## Motivation
 
 While SoundStorm achieves impressive results on speech synthesis with **100× speedup** over autoregressive models, its generalizability to environmental sounds remains unexplored. Environmental sounds present unique challenges:
 
@@ -35,7 +35,7 @@ While SoundStorm achieves impressive results on speech synthesis with **100× sp
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ### SoundStorm Components
 
@@ -62,7 +62,7 @@ While SoundStorm achieves impressive results on speech synthesis with **100× sp
 
 ---
 
-## 📊 Datasets
+## Datasets
 
 ### ESC-50
 - **2,000** five-second recordings
@@ -77,7 +77,7 @@ While SoundStorm achieves impressive results on speech synthesis with **100× sp
 
 ---
 
-## 🔬 Experimental Setup
+## Experimental Setup
 
 ### Training Configuration
 
@@ -116,7 +116,7 @@ loss = CrossEntropy
 
 ---
 
-## 📈 Results
+## Results
 
 ### Classification Performance
 
@@ -127,18 +127,18 @@ loss = CrossEntropy
 | SoundStorm (fine-tuned) | 79.6% | 75.4% |
 
 **Per-Class Analysis:**
-- ✅ Strong on temporal structure: clock (92%), dog (87%), keyboard (85%)
-- ⚠️ Weak on spectral complexity: helicopter (64%), chainsaw (68%), engine (71%)
+- Strong on temporal structure: clock (92%), dog (87%), keyboard (85%)
+- Weak on spectral complexity: helicopter (64%), chainsaw (68%), engine (71%)
 
 ### Audio Generation Quality
 
 | Metric | Real Audio | Generated | Difference |
 |--------|-----------|-----------|------------|
-| SNR (dB) | 14.97 ± 8.10 | 23.18 ± 3.85 | **+54.89%** ⚠️ |
-| Zero-Crossing Rate | 0.067 ± 0.075 | 0.022 ± 0.008 | **-66.79%** ⚠️ |
+| SNR (dB) | 14.97 ± 8.10 | 23.18 ± 3.85 | **+54.89%** |
+| Zero-Crossing Rate | 0.067 ± 0.075 | 0.022 ± 0.008 | **-66.79%** |
 | RMS Energy | 0.105 ± 0.088 | 0.068 ± 0.010 | **-34.92%** |
 | Spectral Entropy | 9.85 ± 0.80 | 8.91 ± 0.39 | **-9.49%** |
-| Spectral Centroid (Hz) | 3090 ± 1392 | 1392 ± 258 | **-54.95%** ⚠️ |
+| Spectral Centroid (Hz) | 3090 ± 1392 | 1392 ± 258 | **-54.95%** |
 | Spectral Rolloff (Hz) | 5735 ± 3259 | 3259 ± 729 | **-43.18%** |
 
 **Statistical Significance:**
@@ -155,7 +155,7 @@ loss = CrossEntropy
 
 ---
 
-## 🔍 Key Findings
+## Key Findings
 
 ### Four Primary Failure Modes
 
@@ -189,7 +189,7 @@ loss = CrossEntropy
 
 ---
 
-## 🚀 Installation
+## Installation
 
 ### Prerequisites
 ```bash
@@ -231,7 +231,7 @@ scikit-learn>=1.3.0
 
 ---
 
-## 💻 Usage
+## Usage
 
 ### Training
 
@@ -289,7 +289,7 @@ python evaluate_classifier.py \
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 CIS7000_Final_Project/
@@ -328,7 +328,7 @@ CIS7000_Final_Project/
 
 ---
 
-## 📊 Reproducibility
+## Reproducibility
 
 ### Hardware Requirements
 - GPU: NVIDIA GPU with ≥16GB VRAM (tested on A100)
@@ -350,7 +350,7 @@ random.seed(42)
 
 ---
 
-## 🎓 Future Directions
+## Future Directions
 
 Based on our analysis, we recommend:
 
@@ -365,23 +365,7 @@ Based on our analysis, we recommend:
 
 ---
 
-## 📖 Citation
-
-If you use this code or findings in your research, please cite:
-
-```bibtex
-@article{wang2024soundstorm,
-  title={Adapting SoundStorm for Environmental Sound Generation},
-  author={Wang, Aaron and Tripathi, Tripti and Chen, Kathryn},
-  journal={CIS 7000 Final Project Report},
-  institution={University of Pennsylvania},
-  year={2024}
-}
-```
-
----
-
-## 📚 References
+## References
 
 ### Core Papers
 - **SoundStorm**: [Borsos et al., 2023](https://arxiv.org/abs/2305.09636)
@@ -396,34 +380,13 @@ If you use this code or findings in your research, please cite:
 
 ---
 
-## 🤝 Contributing
-
-This is a course project completed in Fall 2024. While we're not actively maintaining the repository, feel free to:
-- Open issues for questions or bug reports
-- Fork the repository for your own experiments
-- Cite our work if you build upon it
-
----
-
-## 📧 Contact
-
-- **Aaron Wang**: aaronwang@seas.upenn.edu
-- **Tripti Tripathi**: triptit@seas.upenn.edu
-- **Kathryn Chen**: kathrync@seas.upenn.edu
-
-**Course**: CIS 7000 - Advanced Topics in Machine Learning  
-**Institution**: University of Pennsylvania  
-**Semester**: Fall 2024
-
----
-
-## 📄 License
+## License
 
 MIT License - see LICENSE file for details
 
 ---
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - CIS 7000 course staff for guidance and feedback
 - University of Pennsylvania for computational resources
@@ -431,7 +394,3 @@ MIT License - see LICENSE file for details
 - ESC-50 and UrbanSound8K dataset creators
 
 ---
-
-<p align="center">
-  <strong>⭐ Star this repository if you find it useful!</strong>
-</p>
