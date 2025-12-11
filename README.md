@@ -221,18 +221,8 @@ python train.py \
   --steps 12 \
   --output_dir ./checkpoints
 
-# Train classification head (frozen encoder)
-python train_classifier.py \
-  --data_dir /path/to/datafiles \
-  --fold 1 \
-  --freeze_encoder \
-  --batch_size 32 \
-  --epochs 50 \
-  --learning_rate 5e-5 \
-  --num_quantizers 12 \
-  --output_dir ./checkpoints
 
-# Train classification head (joint training)
+#  Fine-tune SoundStorm for environmental sound classification
 python train_classifier.py \
   --data_dir /path/to/datafiles \
   --fold 1 \
