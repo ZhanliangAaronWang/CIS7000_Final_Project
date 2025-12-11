@@ -264,6 +264,7 @@ CIS7000_Final_Project/
 ├── README.md
 └── report.pdf
 ```
+It is worth noting that the Jupyter notebooks are downloaded from Google Colab files, which do not contain code that directly generated the results in the report. Soundstorm.ipynb is the prototype code used for the final model finetuning code, and libritts.ipynb contains an attempt at training the LibriSpeech dataset to establish a performance baseline, which we failed to complete due to running out of compute units.
 
 ### Data Format
 
