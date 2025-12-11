@@ -1,0 +1,3 @@
+Metric,Mean,Std,Min,Max,Interpretation
+Spectral Convergence,1.5363,1.3771,0.7971,9.1289,Lower is better
+Log Spectral Distance,2.0252,0.6660,1.0763,4.3611,Lower is better

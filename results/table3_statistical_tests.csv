@@ -1,0 +1,6 @@
+Metric,KS Statistic,P-Value,Interpretation
+Snr,0.6300,0.0000,Distributions different (p ≤ 0.05)
+Zcr,0.6400,0.0000,Distributions different (p ≤ 0.05)
+Rms,0.4500,0.0000,Distributions different (p ≤ 0.05)
+Spectral Entropy,0.6300,0.0000,Distributions different (p ≤ 0.05)
+Duration,0.0000,1.0000,Distributions similar (p > 0.05)
