@@ -3,7 +3,7 @@
 **CIS 7000: Advanced Topics in Machine Learning - Final Project**  
 University of Pennsylvania, Fall 2024
 
-**Team:** Aaron Wang, Tripti Tripathi, Kathryn Chen
+**Team:** Kathryn Chen, Zhanliang Wang, Tripti Tripathi,
 
 ---
 
@@ -300,84 +300,4 @@ JSON files structure:
   ]
 }
 ```
-
 ---
-
-## Reproducibility
-
-### Hardware
-- GPU: NVIDIA with 16GB+ VRAM (tested on A100)
-- RAM: 32GB+
-- Storage: 50GB+
-
-### Training Time
-- SoundStorm fine-tuning: ~12 hours on A100
-- Classification training: ~2 hours
-- Generation (100 samples): ~1 minute
-
-### Random Seeds
-```python
-torch.manual_seed(42)
-np.random.seed(42)
-random.seed(42)
-```
-
----
-
-## Future Work
-
-1. Higher-bitrate codecs with more quantizers
-2. Diverse pretraining on speech + environmental + music
-3. Increased model capacity
-4. Longer convolution kernels for temporal patterns
-5. Explicit temporal conditioning
-6. Larger datasets (AudioSet: 2M samples, FSD50K: 50K samples)
-7. Class-conditional generation
-8. Perceptual metrics (Fréchet Audio Distance, MUSHRA)
-
----
-
-## Citation
-
-```bibtex
-@article{wang2024soundstorm,
-  title={Adapting SoundStorm for Environmental Sound Generation},
-  author={Wang, Aaron and Tripathi, Tripti and Chen, Kathryn},
-  journal={CIS 7000 Final Project Report},
-  institution={University of Pennsylvania},
-  year={2024}
-}
-```
-
----
-
-## References
-
-### Core Papers
-- SoundStorm: Borsos et al., 2023
-- Conformer: Gulati et al., 2020
-- MaskGIT: Chang et al., 2022
-- Encodec: Défossez et al., 2022
-- AST: Gong et al., 2021
-
-### Datasets
-- ESC-50: Piczak, 2015
-- UrbanSound8K: Salamon et al., 2014
-
----
-
-## Contact
-
-- Aaron Wang: aaronwang@seas.upenn.edu
-- Tripti Tripathi: triptit@seas.upenn.edu
-- Kathryn Chen: kathrync@seas.upenn.edu
-
-Course: CIS 7000 - Advanced Topics in Machine Learning  
-Institution: University of Pennsylvania  
-Semester: Fall 2024
-
----
-
-## Acknowledgments
-
-Thanks to CIS 7000 course staff, University of Pennsylvania for computational resources, and the original SoundStorm authors.
